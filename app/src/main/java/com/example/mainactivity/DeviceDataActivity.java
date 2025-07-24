@@ -84,10 +84,14 @@ public class DeviceDataActivity extends AppCompatActivity {
     //options to select in the toolbar
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //first option is to sort students by id or surname
         if (item.getItemId()== android.R.id.home){
             //back button
             NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_setup_connection){
+            Intent intent = new Intent(DeviceDataActivity.this, BluetoothActivity.class);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
