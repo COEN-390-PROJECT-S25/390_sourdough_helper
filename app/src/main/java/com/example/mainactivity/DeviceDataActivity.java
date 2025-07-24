@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,12 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 
 public class DeviceDataActivity extends AppCompatActivity {
     private TextView tvDeviceData, tvDeviceMessage;
@@ -50,8 +43,8 @@ public class DeviceDataActivity extends AppCompatActivity {
         deviceIp = getIntent().getStringExtra("DEVICE_IP");
         deviceMac = getIntent().getStringExtra("DEVICE_MAC");
 
-        tvDeviceMessage = findViewById(R.id.device_msg);
-        tvDeviceData = findViewById(R.id.tvDeviceData);
+        tvDeviceMessage = findViewById(R.id.textViewProgress);
+        tvDeviceData = findViewById(R.id.currentDayProgress);
 
         tvDeviceMessage.setText("Device IP: " + deviceIp);
         tvDeviceData.setText("Device MAC Address: " + deviceMac);
@@ -66,11 +59,17 @@ public class DeviceDataActivity extends AppCompatActivity {
         }
 
         //graphed data button click
-        findViewById(R.id.buttonGraphedData).setOnClickListener(v -> {
+        findViewById(R.id.buttonStarterFed).setOnClickListener(v -> {
             Intent intent = new Intent(DeviceDataActivity.this, DataGraphActivity.class);
             intent.putExtra("DEVICE_MAC",deviceMac);
             //in the xml we use Singletop to prevent loss of data per pressing back buttons betweent
             //activities.
+            startActivity(intent);
+        });
+
+        //feeding instructions button click
+        findViewById(R.id.buttonFeedingInstructions).setOnClickListener(v -> {
+            Intent intent = new Intent(DeviceDataActivity.this, FeedingDialogFragment.class);
             startActivity(intent);
         });
     }

@@ -8,7 +8,7 @@
     android:background="@color/background_color">
 
     <TextView
-        android:id="@+id/Summary"
+        android:id="@+id/feedingSummary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="25sp"
@@ -16,7 +16,7 @@
         android:text="This page contains the data of your sourdough from the device itself."/>
 
     <TextView
-        android:id="@+id/device_msg"
+        android:id="@+id/textViewProgress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="From the device: "

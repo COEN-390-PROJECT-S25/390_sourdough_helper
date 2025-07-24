@@ -5,10 +5,7 @@ import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.SimpleDateFormat;
-import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,29 +20,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class DataGraphActivity extends AppCompatActivity {
@@ -68,7 +51,7 @@ public class DataGraphActivity extends AppCompatActivity {
         deviceMac = getIntent().getStringExtra("DEVICE_MAC");
 
         //text views about which device is connected.
-        tvDeviceMessage = findViewById(R.id.device_msg);
+        tvDeviceMessage = findViewById(R.id.textViewProgress);
         tvDeviceMessage.setText("Device from " + deviceMac);
 
         tvStartTime = findViewById(R.id.data_start_time);

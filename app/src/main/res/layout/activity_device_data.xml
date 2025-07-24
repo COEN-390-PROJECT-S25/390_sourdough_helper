@@ -13,7 +13,7 @@
 
     <!-- Starter Name -->
     <TextView
-        android:id="@+id/textViewStarterNameDashboard"
+        android:id="@+id/textViewFeedingInstructionsTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
@@ -50,7 +50,7 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/Summary"
+                android:id="@+id/feedingSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Summary:"
@@ -59,7 +59,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/device_msg"
+                android:id="@+id/textViewProgress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -70,7 +70,7 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tvDeviceData"
+                android:id="@+id/currentDayProgress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -84,7 +84,7 @@
 
     <!-- Graphed Data Button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonGraphedData"
+        android:id="@+id/buttonStarterFed"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
