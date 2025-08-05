@@ -33,9 +33,7 @@ android {
 }
 
 dependencies {
-    implementation(platform(libs.firebase.bom))
-    implementation (libs.mpandroidchart)
-    implementation (libs.firebase.database)
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -43,7 +41,13 @@ dependencies {
     implementation(libs.google.firebase.database)
     implementation(libs.room.common.jvm)
     implementation(libs.room.runtime.android)
+    implementation(libs.legacy.support.v4)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(platform(libs.firebase.bom))
+    implementation (libs.mpandroidchart)
+    implementation (libs.firebase.database)
+    annotationProcessor(libs.room.compiler)
+
 }

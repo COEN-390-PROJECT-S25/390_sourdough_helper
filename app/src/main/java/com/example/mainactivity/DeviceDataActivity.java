@@ -60,12 +60,13 @@ public class DeviceDataActivity extends AppCompatActivity {
 
         //feeding instructions button click
         findViewById(R.id.buttonFeedingInstructions).setOnClickListener(v -> {
-            Intent intent = new Intent(DeviceDataActivity.this, FeedingDialogFragment.class);
-            startActivity(intent);
+            //open feeding dialog fragment
+            FeedingDialogFragment feedingDialogFragment = new FeedingDialogFragment();
+            feedingDialogFragment.show(getSupportFragmentManager(), "FeedingDialogFragment");
         });
 
         //graphed data button click
-        findViewById(R.id.buttonGraphedData).setOnClickListener(v -> {
+        findViewById(R.id.buttonStarterFed).setOnClickListener(v -> {
             Intent intent = new Intent(DeviceDataActivity.this, DataGraphActivity.class);
             intent.putExtra("DEVICE_MAC",deviceMac);
             //in the xml we use Singletop to prevent loss of data per pressing back buttons betweent

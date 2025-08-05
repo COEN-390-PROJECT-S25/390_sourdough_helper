@@ -2,6 +2,7 @@ package com.example.mainactivity.Database.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.example.mainactivity.Database.entity.InfoEntity;
@@ -19,7 +20,7 @@ public interface InfoDao {
     InfoEntity getInfoByDay(int day);
 
     //INSERT FUNCTIONS
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertInfo(InfoEntity... infoEntity); //can insert 1 or multiple entries
 
     //DELETE FUNCTION

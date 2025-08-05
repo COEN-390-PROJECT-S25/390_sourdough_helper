@@ -4,122 +4,141 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="25dp"
-    android:layout_marginTop="25dp"
-    android:layout_marginEnd="25dp"
-    android:layout_marginBottom="25dp">
+    android:layout_marginStart="2dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="2dp"
+    android:layout_marginBottom="10dp">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_color"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:fillViewport="true">
 
-        <!-- Toolbar -->
-
-        <!-- Starter Name -->
-        <TextView
-            android:id="@+id/textViewFeedingInstructionsTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:text="Feeding Instructions"
-            android:textAlignment="center"
-            android:textColor="@color/primary_text"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:background="@color/background_color"
+            android:orientation="vertical"
+            android:padding="10dp">
 
-        <!-- Feeding Instructions Button -->
+            <!-- Toolbar -->
 
-        <!-- Card for Summary and Messages -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp">
+            <!-- Starter Name -->
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/textViewFeedingInstructionsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="50dp"
+                android:text="Feeding Instructions"
+                android:textAlignment="center"
+                android:textColor="@color/primary_text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textViewRequirementsSubtitle"
+            <!-- Feeding Instructions Button -->
+
+            <!-- Card for Summary and Messages -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Requirements:"
-                    android:textColor="@color/primary_text"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/textViewRequirements"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="@color/secondary_color"
-                    android:padding="16dp"
-                    android:text="&quot;- Large mason jar (Greater than 750ml) - Whole wheat flour - All purpose or bread flour - digital scale - small rubber spatula"
-                    android:textColor="@color/on_secondary_color"
-                    android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/textViewRequirementsSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Requirements:"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textViewInstructionsSubtitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Instructions:"
-                    android:textColor="@color/primary_text"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/textViewRequirements"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/secondary_color"
+                        android:padding="16dp"
+                        android:text="&quot;- Large mason jar (Greater than 750ml) - Whole wheat flour - All purpose or bread flour - digital scale - small rubber spatula"
+                        android:textColor="@color/on_secondary_color"
+                        android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/textViewProgress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="@color/accent_color"
-                    android:padding="16dp"
-                    android:text="Day 3/7"
-                    android:textColor="@color/on_secondary_color"
-                    android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/textViewInstructionsSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Instructions:"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textViewInstructions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="@color/secondary_color"
-                    android:padding="16dp"
-                    android:text="Discard half (60g) Feed (add): 60g AP or Bread flour 60g water Yields approx. 180g starter Rest 24 hrs at 70-75°F/21-24°C"
-                    android:textColor="@color/on_secondary_color"
-                    android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/textViewProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/accent_color"
+                        android:padding="16dp"
+                        android:text="Day 3/7"
+                        android:textColor="@color/on_secondary_color"
+                        android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/textViewTips"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="@color/secondary_color"
-                    android:padding="16dp"
-                    android:text="Tips:"
-                    android:textColor="@color/on_secondary_color"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/textViewInstructions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/secondary_color"
+                        android:padding="16dp"
+                        android:text="Discard half (60g) Feed (add): 60g AP or Bread flour 60g water Yields approx. 180g starter Rest 24 hrs at 70-75°F/21-24°C"
+                        android:textColor="@color/on_secondary_color"
+                        android:textSize="16sp" />
 
-        <!-- Graphed Data Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonGraphedData"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Starter Fed!"
-            app:cornerRadius="20dp" />
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/textViewTips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/secondary_color"
+                        android:padding="16dp"
+                        android:text="Tips:"
+                        android:textColor="@color/on_secondary_color"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Graphed Data Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonStarterFed"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Starter Fed!"
+                app:cornerRadius="20dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonExitDialog"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Exit"
+                android:textColor="@color/on_secondary_color"
+                app:backgroundTint="@color/secondary_color"
+                app:cornerRadius="20dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </FrameLayout>

@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setupViews();
+        //TODO: UNDO MODIFICATIONS
+        addConnectedDevice("192.168.50.76", "EC:E3:34:D1:60:7C");
         loadConnectedDevices();
         checkNewDevice();
         populateLocalDatabase();
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //modify to add placeholders
     private void addConnectedDevice(String ip, String Mac) {
-        String deviceInfo = "ESP32 Device - " + "192.168.50.76" + " - " + "EC:E3:34:D1:60:7C"; //TODO: UNDO MODIFICATIONS
+        String deviceInfo = "ESP32 Device - " + ip + " - " + Mac;
         if (!connectedDevices.contains(deviceInfo)) {
             connectedDevices.add(deviceInfo);
             saveConnectedDevices();

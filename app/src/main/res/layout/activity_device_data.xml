@@ -84,7 +84,7 @@
 
     <!-- Graphed Data Button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonGraphedData"
+        android:id="@+id/buttonStarterFed"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class FeedingDialogFragment extends DialogFragment {
 
     private MaterialButton buttonStarterFed;
+    private MaterialButton buttonExitDialog;
     private TextView textViewRequirementsSubtitle;
     private TextView textViewRequirements;
     private TextView textViewInstructionsSubtitle;
@@ -36,15 +37,14 @@ public class FeedingDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.feeding_dialog_fragment, container, false);
 
         //initialize views here
-        buttonStarterFed = view.findViewById(R.id.buttonGraphedData);
+        buttonStarterFed = view.findViewById(R.id.buttonStarterFed);
+        buttonExitDialog = view.findViewById(R.id.buttonExitDialog);
         textViewRequirementsSubtitle = view.findViewById(R.id.textViewRequirementsSubtitle);
         textViewRequirements = view.findViewById(R.id.textViewRequirements);
         textViewInstructionsSubtitle = view.findViewById(R.id.textViewInstructionsSubtitle);
         textViewProgress = view.findViewById(R.id.textViewProgress);
         textViewInstructions = view.findViewById(R.id.textViewInstructions);
         textViewTips = view.findViewById(R.id.textViewTips);
-
-        //get mac address from intent
 
         //get day progress from firebase
         FirebaseDatabase firebase = FirebaseDatabase.getInstance();
@@ -57,7 +57,6 @@ public class FeedingDialogFragment extends DialogFragment {
         //set text for views here from local sql database
         //REQUIREMENTS
         AtomicReference<InfoEntity> infoEntity = new AtomicReference<>(db.infoDao().getInfoByDay(0));
-        textViewRequirementsSubtitle.setText(infoEntity.get().getDayName());
         textViewRequirements.setText(infoEntity.get().getInfo());
 
         //INSTRUCTIONS
@@ -76,7 +75,6 @@ public class FeedingDialogFragment extends DialogFragment {
                     //set daily instructions here
                     infoEntity.set(db.infoDao().getInfoByDay(day)); //set to current day
                     textViewProgress.setText(infoEntity.get().getDayName() + "/7");
-                    textViewInstructionsSubtitle.setText(infoEntity.get().getDayName());
                     textViewInstructions.setText(infoEntity.get().getInfo());
                 } else {
                     Toast.makeText(getContext(), "Firebase Retrieval Error", Toast.LENGTH_SHORT).show();
@@ -108,13 +106,21 @@ public class FeedingDialogFragment extends DialogFragment {
                             //update day progress in firebase
                             firebase.getReference(dayProgressRef).setValue(String.valueOf(day + 1));
                         } else {
-                            Toast.makeText(getContext(), "Firebase Retrieval Error", Toast.LENGTH_SHORT).show();
+                           //do nothing
                         }
                     }
                 });
 
 
                 //dismiss the dialog
+                dismiss();
+            }
+        });
+
+        //exit button click
+        view.findViewById(R.id.buttonExitDialog).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 dismiss();
             }
         });
