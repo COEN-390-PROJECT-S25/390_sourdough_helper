@@ -58,18 +58,18 @@ public class DeviceDataActivity extends AppCompatActivity {
             actionBar.setTitle(fromHtml("Data Dashboard",getColor(R.color.on_primary_color)));
         }
 
+        //feeding instructions button click
+        findViewById(R.id.buttonFeedingInstructions).setOnClickListener(v -> {
+            Intent intent = new Intent(DeviceDataActivity.this, FeedingDialogFragment.class);
+            startActivity(intent);
+        });
+
         //graphed data button click
-        findViewById(R.id.buttonStarterFed).setOnClickListener(v -> {
+        findViewById(R.id.buttonGraphedData).setOnClickListener(v -> {
             Intent intent = new Intent(DeviceDataActivity.this, DataGraphActivity.class);
             intent.putExtra("DEVICE_MAC",deviceMac);
             //in the xml we use Singletop to prevent loss of data per pressing back buttons betweent
             //activities.
-            startActivity(intent);
-        });
-
-        //feeding instructions button click
-        findViewById(R.id.buttonFeedingInstructions).setOnClickListener(v -> {
-            Intent intent = new Intent(DeviceDataActivity.this, FeedingDialogFragment.class);
             startActivity(intent);
         });
     }
