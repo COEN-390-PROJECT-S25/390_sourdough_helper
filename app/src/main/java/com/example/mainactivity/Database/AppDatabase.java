@@ -9,10 +9,11 @@ import androidx.room.RoomDatabase;
 import com.example.mainactivity.Database.dao.InfoDao;
 import com.example.mainactivity.Database.dao.TipsDao;
 import com.example.mainactivity.Database.entity.InfoEntity;
+import com.example.mainactivity.Database.entity.TipsEntity;
 
 import java.security.AccessControlContext;
 
-@Database(entities = {InfoEntity.class}, version = 1)
+@Database(entities = {InfoEntity.class, TipsEntity.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
     private static final String DATABASE_NAME = "app_database";

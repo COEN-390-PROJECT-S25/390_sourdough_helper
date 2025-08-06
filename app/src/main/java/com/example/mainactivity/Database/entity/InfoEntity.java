@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-//ACCESS HISTORY TABLE
 @Entity(tableName = "info_table")
 public class InfoEntity {
     //define access types

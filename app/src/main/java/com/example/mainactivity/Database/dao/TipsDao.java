@@ -1,5 +1,6 @@
 package com.example.mainactivity.Database.dao;
 
+import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -8,6 +9,7 @@ import com.example.mainactivity.Database.entity.TipsEntity;
 
 import java.util.List;
 
+@Dao
 public interface TipsDao {
     //GET-ALL FUNCTIONS
     @Query("SELECT * FROM tips_table")
@@ -24,5 +26,4 @@ public interface TipsDao {
     //DELETE FUNCTION
     @Query("DELETE FROM tips_table")
     void deleteAllTips();
-
 }
