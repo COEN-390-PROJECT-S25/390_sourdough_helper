@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mainactivity.Database.AppDatabase;
 import com.example.mainactivity.Database.entity.InfoEntity;
+import com.example.mainactivity.Database.entity.TipsEntity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         //initialize database
         AppDatabase db = AppDatabase.getInstance(this);
 
+        //info table
         db.infoDao().insertInfo(new InfoEntity(0, "Requirements", "-Large mason jar (Greater than 750ml)\r\n-Whole wheat flour\r\n-All purpose or bread flour\r\n-Digital scale\r\n-small rubber spatula"));
         db.infoDao().insertInfo(new InfoEntity(1, "Day 1", "To a glass jar add: \r\n-60g Whole wheat flour\r\n-60g water\r\n-Mix together well\r\nYields approx. 120g starter\r\nRest 24h at 70-75°F/21-24°C"));
         db.infoDao().insertInfo(new InfoEntity(2, "Day 2", "Let rest for 24 hours stirring once or twice to oxygenate the mixture. You may or may not see bubbles. Either way is OK."));
@@ -137,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
         db.infoDao().insertInfo(new InfoEntity(7, "Day 7", "Discard half (116g) Feed (add): 60g AP or Bread flour 60g water Yields approx. 236g starter Rest at 70-75°F/21-24°C until active and bubbling. It should then be ready to use!"));
         db.infoDao().insertInfo(new InfoEntity(8, "Day 7+", "On day 7+, up to 6 hours after feeding, your starter might be active. An active starter will double in size and have lots of bubbles on the surface. It’s now ready to use!\r\nIf your starter has NOT doubled in size, feed every 8-12 hours (not 24) and continue the same formula: Discard half starter. Feed (Add): 60g flour & 60g water at 70-75°F / 21-24°C. Too runny? Add an additional 1-2 tbs of flour." ));
 
+        //TODO: tips table
+        db.tipsDao().insertTips(new TipsEntity(0, "default", "Tips"));
     }
 
 }

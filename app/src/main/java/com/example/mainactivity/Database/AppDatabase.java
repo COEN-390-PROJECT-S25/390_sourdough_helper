@@ -7,6 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.mainactivity.Database.dao.InfoDao;
+import com.example.mainactivity.Database.dao.TipsDao;
 import com.example.mainactivity.Database.entity.InfoEntity;
 
 import java.security.AccessControlContext;
@@ -32,5 +33,6 @@ public abstract class AppDatabase extends RoomDatabase {
 
     //dao methods
     public abstract InfoDao infoDao();
+    public abstract TipsDao tipsDao();
 
 }
