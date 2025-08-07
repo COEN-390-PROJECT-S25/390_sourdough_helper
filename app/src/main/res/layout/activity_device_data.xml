@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     android:background="@color/background_color"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".DeviceDataActivity">
+    android:padding="5dp"
+    tools:context=".DeviceDataActivity"
+    android:gravity="center">
 
     <!-- Starter Name -->
     <TextView
@@ -27,42 +28,47 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/card_background">
+        app:cardBackgroundColor="@color/card_background"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
+
             <TextView
                 android:id="@+id/Summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Summary:"
+                android:text="Summary of your starter"
+                android:gravity="center"
                 android:textColor="@color/primary_text"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:stretchColumns="*"
-                android:padding="4dp"
-                android:background="@drawable/table_border">
+                android:alpha="1"
+                android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
+                android:padding="8dp"
+                android:stretchColumns="*">
 
                 <!-- column names -->
                 <TableRow
                     android:background="@color/green"
                     android:divider="@color/black"
                     android:showDividers="beginning|middle|end">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Measurement"
-                        android:textColor="@color/on_secondary_color"
+                        android:textColor="@color/on_primary_color"
                         android:textStyle="bold" />
 
                     <TextView
@@ -71,8 +77,8 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Start Data"
-                        android:textColor="@color/on_secondary_color"
-                        android:textStyle="bold"/>
+                        android:textColor="@color/on_primary_color"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -80,13 +86,14 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Peak Data"
-                        android:textColor="@color/on_secondary_color"
-                        android:textStyle="bold"/>
+                        android:textColor="@color/on_primary_color"
+                        android:textStyle="bold" />
                 </TableRow>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
                 <!-- co2 -->
                 <TableRow
                     android:divider="@color/black"
@@ -98,7 +105,8 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="CO2"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
+
                     <TextView
                         android:id="@+id/device_data_start_co2"
                         android:layout_width="0dp"
@@ -106,7 +114,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="400 ppm"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_max_co2"
@@ -115,23 +123,25 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="1200 ppm"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
                 </TableRow>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
                 <!-- humidity -->
                 <TableRow
                     android:divider="@color/black"
                     android:showDividers="beginning|middle|end">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Humidity"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_start_humidity"
@@ -140,7 +150,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="45%"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_max_humidity"
@@ -149,12 +159,13 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="85%"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
                 </TableRow>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
                 <!--temp -->
                 <TableRow
                     android:divider="@color/black"
@@ -166,7 +177,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Temperature"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_start_temp"
@@ -175,7 +186,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="22°C"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_max_temp"
@@ -184,12 +195,13 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="32°C"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
                 </TableRow>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/black"/>
+                    android:background="@color/black" />
                 <!-- height -->
                 <TableRow
                     android:divider="@color/black"
@@ -202,7 +214,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="Height"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_start_height"
@@ -211,7 +223,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="1.2m"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
 
                     <TextView
                         android:id="@+id/device_data_max_height"
@@ -220,7 +232,7 @@
                         android:layout_weight="1"
                         android:padding="8dp"
                         android:text="2.5m"
-                        android:textColor="@color/on_secondary_color"/>
+                        android:textColor="@color/on_secondary_color" />
                 </TableRow>
             </TableLayout>
 
@@ -228,88 +240,120 @@
                 android:id="@+id/device_data_duration_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
                 android:text="It has been running for X hours"
                 android:textColor="@color/on_secondary_color"
-                android:layout_weight="1"/>
+                android:layout_marginHorizontal="10dp"/>
+
             <TextView
                 android:id="@+id/device_data_current_day_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
                 android:text="The dough is at day 1"
                 android:textColor="@color/on_secondary_color"
-                android:layout_weight="1"/>
+                android:layout_marginHorizontal="10dp"/>
+
             <TextView
                 android:id="@+id/device_data_result_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
                 android:text="The dough is not ready for the next day"
                 android:textColor="@color/on_secondary_color"
-                android:layout_weight="1"/>
+                android:layout_marginHorizontal="10dp"/>
             <!-- Graphed Data Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonGraphedData"
-                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:text="View Graphed Data"
-                app:cornerRadius="0dp" />
+                android:textColor="@color/on_secondary_color"
+                app:backgroundTint="@color/secondary_variant"
+                app:cornerRadius="20dp" />
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Feeding Instructions Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonFeedingInstructions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Feeding Instructions"
-        app:cornerRadius="0dp"
-        android:layout_marginTop="10dp"
-        app:iconPadding="12dp"
-        style="@style/Widget.MaterialComponents.Button" />
 
 
-    <!-- buttons for starting and stopping -->
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:layout_marginTop="15dp"
+        android:background="@color/background_color"
+        android:dividerPadding="10dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Feeding Instructions Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFeedingInstructions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:minHeight="100dp"
+            android:padding="8dp"
+            android:text="Feeding Instructions"
+            android:textSize="14sp"
+            android:ellipsize="none"
+            android:maxLines="2"
+            app:cornerRadius="20dp"
+            app:icon="@drawable/baseline_format_list_numbered_24"
+            app:iconGravity="textTop"
+            app:iconPadding="8dp"
+            android:layout_weight="1"/>
+
+        <!-- Enable Device Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/device_data_start_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Start"
-            app:cornerRadius="0dp"
-            app:iconPadding="12dp"
-            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:minHeight="100dp"
+            android:padding="8dp"
             android:backgroundTint="@color/green"
-            style="@style/Widget.MaterialComponents.Button" />
+            android:text="Enable Device"
+            android:textSize="14sp"
+            android:ellipsize="none"
+            android:maxLines="2"
+            app:cornerRadius="20dp"
+            app:icon="@drawable/baseline_power_settings_new_24"
+            app:iconGravity="textTop"
+            app:iconPadding="15dp"
+            android:layout_weight="1"/>
 
-
+        <!-- Start New Dough Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/device_data_new_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:minHeight="100dp"
+            android:padding="8dp"
+            android:backgroundTint="@color/secondary_color"
+            android:text="Start a new dough!"
+            android:textSize="14sp"
+            android:textColor="@color/on_secondary_color"
+            android:ellipsize="none"
+            android:maxLines="2"
+            app:cornerRadius="20dp"
+            app:icon="@drawable/baseline_repeat_on_24"
+            app:iconGravity="textTop"
+            app:iconPadding="8dp"
+            android:layout_weight="1"/>
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/device_data_new_button"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start a new dough!"
-        android:backgroundTint="@color/darkpurple"
-        app:cornerRadius="0dp"
-        />
-<!--    <com.google.android.material.button.MaterialButton-->
-<!--        android:id="@+id/device_data_new_day"-->
-<!--        style="@style/Widget.MaterialComponents.Button"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Next Day"-->
-<!--        android:backgroundTint="@color/yelloworange"-->
-<!--        app:cornerRadius="0dp"-->
-<!--        />-->
+
 
 </LinearLayout>

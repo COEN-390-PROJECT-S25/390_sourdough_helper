@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
@@ -28,14 +29,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class DeviceDataActivity extends AppCompatActivity {
     private TextView tvstarthumidity, tvstartco2, tvstarttemperature, tvstartheight;
     private TextView tvmaxhumidity, tvmaxco2, tvmaxtemperature, tvmaxheight;
     //general info textviews
     private TextView tvhours, tvday, tvready, tvstartername;
-
     private float max_humidity, max_co2, max_temperature, max_height;
     private String deviceName = "Missing name!";
     private String deviceIp, deviceMac;
@@ -44,7 +46,9 @@ public class DeviceDataActivity extends AppCompatActivity {
     private Integer currentDay;
     private long firstTimestamp = -1;
     private long lastTimestamp = -1;
+    private int attempt = 1;
 
+    private Boolean ready_state = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +67,6 @@ public class DeviceDataActivity extends AppCompatActivity {
         actionBar.setTitle(Html.fromHtml("<font color='#ffffff'>Starter Dashboard </font>"));
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
-
     private void setupUI(){
         deviceIp = getIntent().getStringExtra("DEVICE_IP");
         deviceMac = getIntent().getStringExtra("DEVICE_MAC");
@@ -91,6 +94,15 @@ public class DeviceDataActivity extends AppCompatActivity {
         tvstartername = findViewById(R.id.device_data_starter_name);
 
         databaseReference = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac);
+
+        databaseReference.child("general").child("attempt").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot snapshot = task.getResult();
+                if (snapshot.exists()) {
+                    attempt = snapshot.getValue(Integer.class);
+                }
+            }
+        });
 
         //buttons
         btnStart = findViewById(R.id.device_data_start_button);
@@ -160,32 +172,35 @@ public class DeviceDataActivity extends AppCompatActivity {
         });
 
         btnNew.setOnClickListener(v -> {
-            databaseReference.child("general").child("current_day").get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DataSnapshot snapshot = task.getResult();
-                    if (snapshot.exists()) {
-                        Integer currentDay = snapshot.getValue(Integer.class);
-                        if (currentDay != null && currentDay == 0) {
-                            //move the user to the intent to 1st day, and when they complete that intent, they should come back to this activity
-                            //and the device should have it enabled.
-                            databaseReference.child("general").child("current_day").setValue(1).addOnSuccessListener(aVoid -> {
-                                Toast.makeText(DeviceDataActivity.this, "Device set to day 1!", Toast.LENGTH_SHORT).show();
-                                databaseReference.child("general").child("enable").setValue(true).addOnFailureListener(e -> {
-                                    Toast.makeText(DeviceDataActivity.this, "Failed to enable device: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                });
-                            }).addOnFailureListener(e -> {
-                                Toast.makeText(DeviceDataActivity.this, "Failed to set the device date!" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
-                        } else {
-                            Toast.makeText(DeviceDataActivity.this,
-                                    "Confirm Restart??",
-                                    Toast.LENGTH_SHORT).show();
-                            //clear all day data, move the user to the first feeding day. once they are done, it enables the sensors.
-                            //TODO: You need to confirm restart when you press this button.
+            new AlertDialog.Builder(DeviceDataActivity.this)
+                .setTitle("Confirm Restart")
+                .setMessage("Are you sure you want to start a new dough?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // User confirmed - perform restart
+                    databaseReference.child("general").child("attempt").get().addOnCompleteListener(attemptTask -> {
+                        if (attemptTask.isSuccessful()) {
+                            DataSnapshot attemptSnapshot = attemptTask.getResult();
+                            Integer currentAttempt = attemptSnapshot.exists() ? attemptSnapshot.getValue(Integer.class) : 0;
+                            if (currentAttempt == null) currentAttempt = 0;
+
+                            // Update values
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("current_day", 0);
+                            updates.put("enable", false);
+                            updates.put("attempt", currentAttempt + 1);
+
+                            databaseReference.child("general").updateChildren(updates)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(DeviceDataActivity.this, "Ready for new dough! \n Go check the feeding instructions!", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(DeviceDataActivity.this, "Failed to reset! " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
                         }
-                    }
-                }
-            });
+                    });
+                })
+                .setNegativeButton("No", null)
+                .show();
         });
 
 //        btnNextDay.setOnClickListener(v -> {
@@ -218,6 +233,7 @@ public class DeviceDataActivity extends AppCompatActivity {
             Intent intent = new Intent(DeviceDataActivity.this, DataGraphActivity.class);
             intent.putExtra("DEVICE_MAC",deviceMac);
             intent.putExtra("DAY", currentDay);
+            intent.putExtra("ATTEMPT", attempt);
             //in the xml we use Singletop to prevent loss of data per pressing back buttons betweent
             //activities.
             startActivity(intent);
@@ -226,13 +242,90 @@ public class DeviceDataActivity extends AppCompatActivity {
         findViewById(R.id.buttonFeedingInstructions).setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("MAC", deviceMac);
+            args.putBoolean("READY", ready_state);
+            args.putInt("ATTEMPT", attempt);
             //open feeding dialog fragment
             FeedingDialogFragment feedingDialogFragment = new FeedingDialogFragment();
             feedingDialogFragment.setArguments(args);
             feedingDialogFragment.show(getSupportFragmentManager(), "FeedingDialogFragment");
         });
     }
-    private void checkEnabled(){
+
+    private void evaluateDoughStatus() {
+        //get start data
+        databaseReference.child("attempt_" + attempt).child("day_" + currentDay).child("start_data").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot startSnapshot) {
+                if (startSnapshot.exists()) {
+                    // Get start values
+                    Float startHumidity = startSnapshot.child("humidity").getValue(Float.class);
+                    Float startCo2 = startSnapshot.child("co2").getValue(Float.class);
+                    Float startTemperature = startSnapshot.child("temperature").getValue(Float.class);
+                    Float startHeight = startSnapshot.child("height").getValue(Float.class);
+
+                    if (startHumidity == null || startCo2 == null || startTemperature == null || startHeight == null) {
+                        tvready.setText("Incomplete start data");
+                        return;
+                    }
+
+                    //used the max and start data to  compare.
+                    String statusMessage = analyzeDoughProgress(
+                            startHumidity, max_humidity,
+                            startCo2, max_co2,
+                            startTemperature, max_temperature,
+                            startHeight, max_height
+                    );
+
+                    tvready.setText(statusMessage);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tvready.setText("Error reading start data");
+            }
+        });
+    }
+
+    private String analyzeDoughProgress(float startHumidity, float maxHumidity,
+                                        float startCo2, float maxCo2,
+                                        float startTemp, float maxTemp,
+                                        float startHeight, float maxHeight) {
+        // Convert heights to actual dough height in mm
+        float doughStartHeight = (180.0f - startHeight) / 10.0f;
+        float doughMaxHeight = (180.0f - maxHeight) / 10.0f;
+        String extra_message;
+        // Calculate percentage changes
+//        float humidityChange = ((maxHumidity - startHumidity) / startHumidity) * 100;
+        float co2Change = ((maxCo2 - startCo2) / startCo2) * 100;
+//        float tempChange = ((maxTemp - startTemp) / startTemp) * 100;
+        float heightChange = ((doughMaxHeight - doughStartHeight) / doughStartHeight) * 100;
+
+        // Define thresholds (you can adjust these based on your requirements)
+//        final float GOOD_HUMIDITY_CHANGE = 10f; // %
+        final float GOOD_CO2_CHANGE = 100f; // %
+//        final float GOOD_TEMP_CHANGE = 5f; // %
+        final float GOOD_HEIGHT_CHANGE = 50f; // %
+
+        // Evaluate each parameter
+//        boolean goodHumidity = humidityChange >= GOOD_HUMIDITY_CHANGE;
+        boolean goodCo2 = co2Change >= GOOD_CO2_CHANGE;
+//        boolean goodTemp = tempChange >= GOOD_TEMP_CHANGE;
+        boolean goodHeight = heightChange >= GOOD_HEIGHT_CHANGE;
+
+        // Determine overall status
+        if (goodCo2 && goodHeight) {
+            ready_state = true;
+            return "Dough is ready! Excellent fermentation.";
+        }  else if (goodHeight || goodCo2) {
+            ready_state = false;
+            return "Dough is progressing well.";
+        } else {
+            ready_state = false;
+            return "Dough needs more time to ferment.";
+        }
+    }
+    private void checkEnabled() {
         databaseReference.child("general").child("enable").get().addOnCompleteListener(enableTask -> {
             if (!enableTask.isSuccessful() || !enableTask.getResult().exists()) {
                 Toast.makeText(this, "Failed to check device status", Toast.LENGTH_SHORT).show();
@@ -260,7 +353,7 @@ public class DeviceDataActivity extends AppCompatActivity {
                     currentDay = snapshot.getValue(Integer.class);
                     if (currentDay != null && currentDay > 0) {
                         // Fetch start data for the current day
-                        databaseReference.child("day_" + currentDay).child("start_data").addListenerForSingleValueEvent(new ValueEventListener() {
+                        databaseReference.child("attempt_" + attempt).child("day_" + currentDay).child("start_data").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot startSnapshot) {
                                 if (startSnapshot.exists()) {
@@ -326,8 +419,7 @@ public class DeviceDataActivity extends AppCompatActivity {
     }
     private void setupTimestampTracker() {
         //get reference
-        DatabaseReference deviceReadingsRef = FirebaseDatabase.getInstance()
-                .getReference("sensors/" + deviceMac + "/day_" + currentDay);
+        DatabaseReference deviceReadingsRef = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac + "/attempt_" + attempt + "/day_" + currentDay);
 
         //track data changes on the database
         deviceReadingsRef.addValueEventListener(new ValueEventListener() {
@@ -375,24 +467,8 @@ public class DeviceDataActivity extends AppCompatActivity {
         // Update the TextView
         tvhours.setText("Duration: " + durationText);
     }
-    private String formatDuration(long seconds) {
-        long days = seconds / (24 * 3600);
-        long hours = (seconds % (24 * 3600)) / 3600;
-        long minutes = (seconds % 3600) / 60;
-        long secs = seconds % 60;
-
-        if (days > 0) {
-            return String.format(Locale.getDefault(), "%d days, %d hours", days, hours);
-        } else if (hours > 0) {
-            return String.format(Locale.getDefault(), "%d hours, %d minutes", hours, minutes);
-        } else if (minutes > 0) {
-            return String.format(Locale.getDefault(), "%d minutes, %d seconds", minutes, secs);
-        } else {
-            return String.format(Locale.getDefault(), "%d seconds", secs);
-        }
-    }
     private void fetchMaxData(int currentDay) {
-        DatabaseReference dayRef = databaseReference.child("day_" + currentDay);
+        DatabaseReference dayRef = databaseReference.child("attempt_" + attempt).child("day_" + currentDay);
 
         // Create a holder class for our max values
         class MaxValues {
@@ -442,12 +518,15 @@ public class DeviceDataActivity extends AppCompatActivity {
                         tvmaxtemperature.setText(String.format("%.1f°C", maxValues.temperature));
                         tvmaxheight.setText(String.format("%.1f mm", ((180.0f - maxValues.height)/10.0f)));
 
-                        // Update class variables
+                        //update class variables
                         max_humidity = maxValues.humidity;
                         max_co2 = maxValues.co2;
                         max_temperature = maxValues.temperature;
                         max_height = maxValues.height;
+
+                        evaluateDoughStatus();
                     });
+
                 }
             }
 
@@ -474,11 +553,12 @@ public class DeviceDataActivity extends AppCompatActivity {
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }
-        else if (item.getItemId() == R.id.action_setup_connection){
-            Intent intent = new Intent(DeviceDataActivity.this, BluetoothActivity.class);
-            startActivity(intent);
-            return true;
-        }
+        //TODO: FIX THIS LATER WIFI ISSUE RECONNECTION.
+//        else if (item.getItemId() == R.id.action_setup_connection){
+//            Intent intent = new Intent(DeviceDataActivity.this, BluetoothActivity.class);
+//            startActivity(intent);
+//            return true;
+//        }
         else if (item.getItemId() == R.id.action_rename_device){
             //open dialog fragment to rename device
             DeviceNameDialogFragment deviceNameDialogFragment = new DeviceNameDialogFragment();

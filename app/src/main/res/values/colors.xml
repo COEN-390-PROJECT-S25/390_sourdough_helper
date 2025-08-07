@@ -26,4 +26,11 @@
     <color name="red"> #B9375D </color>
     <color name="darkpurple"> #280A3E </color>
     <color name="yelloworange"> #F9CB99</color>
+
+    <color name="card_stroke">#1E000000</color> <!-- Very light black for card border -->
+    <color name="primary_text2">#212121</color> <!-- Dark gray for primary text -->
+    <color name="secondary_text">#757575</color> <!-- Medium gray for secondary text -->
+    <color name="icon_red">#FF5252</color> <!-- Red for delete icon -->
+
+
 </resources>

@@ -13,9 +13,9 @@ public class FermentationAnalyzerHelper {
          * from the temperature is whether or not it is being fermented at best range to have best flavour.
          */
         String tempAdvice;
-        if(temp < 24)
+        if(temp < 23)
             tempAdvice = "Temperature low: Fermentation may be slow.";
-        else if(temp > 28)
+        else if(temp > 30)
             tempAdvice = "Temperature high: risk of off-flavours of sourdough";
         else
             tempAdvice = "Temperature optimal for fermentation.";
@@ -30,9 +30,9 @@ public class FermentationAnalyzerHelper {
          */
         if(humidity < 70)
             humidityAdvice = "Humidity is low, dough may dry out. Consider adding water.";
-        else if(humidity <= 75)
+        else if(humidity <= 80)
             humidityAdvice = "Humidity is optimal for sourdough fermentation.";
-        else if(humidity <= 85)
+        else if(humidity <= 90)
             humidityAdvice = "Humidity is high. Watch dough closely.";
         else
             humidityAdvice = "Very high humidity. Dough may over-ferment or dry out quickly. Consider reducing the hydration.";
@@ -47,7 +47,8 @@ public class FermentationAnalyzerHelper {
          */
 
         String ToFAdvice;
-        float jarHeight = 195;
+        Boolean TofBool = false;
+        float jarHeight = 180;
 
         // Convert ToF distances to actual sourdough height in jar
         float currentHeight = jarHeight - currentToF;
@@ -68,11 +69,14 @@ public class FermentationAnalyzerHelper {
             return ToFAdvice;
         }
 
-        if (growthFactor < 1.2) {
+        if (initialHeight + 15 > currentHeight) {
             ToFAdvice = "Starter hasn’t grown much. Consider checking the temperature or feeding starter.";
-        } else if (growthFactor < 2.0) {
+            TofBool = false;
+        } else if (initialHeight + 15 < currentHeight) {
             ToFAdvice = "Starter is growing !";
+            TofBool = true;
         } else {
+            TofBool = true;
             ToFAdvice = "Your starter has doubled (or more) in size!";
         }
 

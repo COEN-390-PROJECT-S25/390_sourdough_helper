@@ -2,10 +2,16 @@ package com.example.mainactivity;
 
 import static androidx.core.text.HtmlCompat.fromHtml;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -21,19 +27,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mainactivity.Database.AppDatabase;
 import com.example.mainactivity.Database.entity.InfoEntity;
 import com.example.mainactivity.Database.entity.TipsEntity;
+import com.google.firebase.database.FirebaseDatabase;
+
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private ListView lvDevices;
-    private ArrayAdapter<String> deviceAdapter;
+    private DeviceAdapter deviceAdapter;
     private ArrayList<String> connectedDevices = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // Optional: for offline support
+//        Button btnTestNotification = findViewById(R.id.btn_test); // Add this button to your layout
+//        btnTestNotification.setOnClickListener(v -> {
+//            NotificationHelper helper = new NotificationHelper(this);
+//            helper.sendCustomNotification("Test", "Local notification works!");
+//        });
 
         setupViews();
         addConnectedDevice("NONE", "EC:E3:34:D1:60:7C");
@@ -45,30 +63,31 @@ public class MainActivity extends AppCompatActivity {
         //db.infoDao().deleteAllInfo();
         //db.tipsDao().deleteAllTips();
         populateLocalDatabase();
+
+//        Context context = getApplicationContext();
+//        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
+//                BackgroundRoutine.class,
+//                30, // Minimum interval (15 mins)
+//                TimeUnit.SECONDS
+//        ).build();
+//        WorkManager.getInstance(this).enqueue(workRequest);
+
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+
     }
 
-    //TODO: NOTIFICATIONS
-
-    //TODO: MAKE THE THING NOT CHANGEABLE FROM PORTRAIT TO LANDSCAPE (FIX PROVIDED BY JOHN'S BRANMCH)
-
-    //DONE: CHANGE THE NAME THAT IT DISPLAYS HERE TO SOMETHING ELSE.
-    //DONE CHANGE IT TO A NAME THAT YOU CAN GET FROM DATABASE. NOT JUST THE IP AND MAC IT MAKES NO SENSE.
-    //DONE MAKE A SMALL ACTIVITY THAT LETS YOU GO CHANGE THE NAME OF THE USER AND SEND IT TO DATABASE. MAYBE MAKE THE SENSOR NAME CHANGEABLE BY PRESSING IT?
-    //DONE: LIKE A EDIT TEXT THAT WHEN CONFIRMED, SENDS IT STRAIGHT TO THE DATABASE AS A MODIFICATION
-
-    //TODO: LAST THING IS TO MAKE WIFI RECONNECTION SYSTEM IN THE ARDUINO (RISKY) ALSO MAKE IT DETECT THAT IT IS NOT CONNECTED TO INTERNET ANYMORE
-    // EITHER BY SENDING A BLUETOOTH VALUE, OR BY HAVING THE PHONE READ THE SHARED PREFERENCES OF THE ARDUINO??? IDK. WE NEED A WAY TO SEND THIS MESSAGE.
-    // MAYBE HAVE THE PHONE SEND A MESSAGE TO THE BLUETOOTH RECEIVER, AND IT SENDS BACK A CONFIRMATION, LIKE A 1 TO 1 COMM
-    // LIKE PHONE SENDS BT CONNECTED? AND ARDUINO SAYS EITHER YES/NO. BASED ON ANSWER, WE GO TO THE SPECIFIC ACTIVITY.
-
-    //TODO: START NEW DOUGH SHOULD SEND A USER TO THE FEEDING INSTRUCTIONS, THEN SET THE CURRENT DAY TO 0, AND LET THE USER PRESS START FED.
-    //TODO: IT SHOULD SET THE DAY TO 1 AFTER IT'S DONE AND ENABLE THE LID.
-    //TODO: MAYBE LOOK INTO HOW THE HEIGHT IS MEASURED ON THE ORIGINAL PROJECT IDEA (WEBLINK)
     private void setupViews() {
         // Initialize views
         lvDevices = findViewById(R.id.lvDevices);
-        deviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, connectedDevices);
+        deviceAdapter = new DeviceAdapter(this, connectedDevices);
         lvDevices.setAdapter(deviceAdapter);
+        lvDevices.setDivider(new ColorDrawable(Color.TRANSPARENT));
+        lvDevices.setDividerHeight(2);
 
         //setup action bar
         if (getSupportActionBar() != null) {
@@ -78,28 +97,21 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setTitle(fromHtml("List of Starters",getColor(R.color.on_primary_color)));
         }
 
-
-        lvDevices.setOnItemClickListener((parent, view, position, id) -> {
-            String deviceInfo = connectedDevices.get(position);
-            String deviceIp = deviceInfo.split(" - ")[1]; // Extract IP from display string
-            String deviceMac = deviceInfo.split(" - ")[2]; //get the mac address
-
-            Intent intent = new Intent(MainActivity.this, DeviceDataActivity.class);
-            intent.putExtra("DEVICE_IP", deviceIp);
-            intent.putExtra("DEVICE_MAC", deviceMac);
-            startActivity(intent);
-        });
-
         Button btnAddDevice = findViewById(R.id.gotobluetooth);
         btnAddDevice.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, BluetoothActivity.class);
             startActivity(intent);
         });
 
-        Button btnReset = findViewById(R.id.reset_button);
-        btnReset.setOnClickListener(v -> {
-            clearConnectedDevices();
-        });
+    }
+
+    // Add this new method to handle device removal:
+    public void removeDevice(int position) {
+        if (position >= 0 && position < connectedDevices.size()) {
+            connectedDevices.remove(position);
+            saveConnectedDevices();
+            deviceAdapter.notifyDataSetChanged();
+        }
     }
 
     private void loadConnectedDevices() {
@@ -125,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
             connectedDevices.add(deviceInfo);
             saveConnectedDevices();
             deviceAdapter.notifyDataSetChanged();
+            new NotificationHelper(this).startFirebaseMonitoring(this);
         }
     }
 
@@ -134,11 +147,6 @@ public class MainActivity extends AppCompatActivity {
         prefs.edit().putStringSet("CONNECTED_DEVICES", devicesSet).apply();
     }
 
-    private void clearConnectedDevices() {
-        connectedDevices.clear();
-        saveConnectedDevices();
-        deviceAdapter.notifyDataSetChanged();
-    }
     private void populateLocalDatabase(){
         //initialize database
         AppDatabase db = AppDatabase.getInstance(this);

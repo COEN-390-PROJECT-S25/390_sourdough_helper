@@ -2,15 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_setup_connection"
-        android:orderInCategory="100"
-        android:title="Change WiFi"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_rename_device"
         android:orderInCategory="200"
         android:title="Rename Device"
         app:showAsAction="never" />
-
 
 </menu>

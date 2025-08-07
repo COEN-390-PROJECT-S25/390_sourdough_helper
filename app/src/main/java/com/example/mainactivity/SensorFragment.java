@@ -9,11 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -38,17 +40,19 @@ public class SensorFragment extends Fragment {
     private LineChart chart;
     private DatabaseReference dbRef;
     private int currentDay;
+    private int attempt;
     private TextView tvNoData;
     private static final float MAX_HEIGHT = 180.0f; // Adjust this value as needed
 
 
-    public static SensorFragment newInstance(String deviceMac, String fieldName, String unit, int day) {
+    public static SensorFragment newInstance(String deviceMac, String fieldName, String unit, int day, int attempt) {
         SensorFragment fragment = new SensorFragment();
         Bundle args = new Bundle();
         args.putString(ARG_MAC, deviceMac);
         args.putString(ARG_FIELD, fieldName);
         args.putString(ARG_UNIT, unit);
         args.putInt(ARG_DAY, day);
+        args.putInt("ATTEMPT", attempt);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,7 +63,7 @@ public class SensorFragment extends Fragment {
         chart = view.findViewById(R.id.chart);
         currentDay = getArguments().getInt(ARG_DAY, 1);
         tvNoData = view.findViewById(R.id.tvNoData); // Initialize the no data text
-
+        attempt = getArguments().getInt("ATTEMPT",1);
         //this class is based on making the chart. this is for each sensor.
         setupChart();
         return view;
@@ -77,10 +81,10 @@ public class SensorFragment extends Fragment {
         String fieldName = args.getString(ARG_FIELD);
         String unit = args.getString(ARG_UNIT);
 
-        //TODO: MAKE SURE YOU CAN CYCLE PER DAY, AND DECTECT THE DAY YOU ARE REPRESENTING ON THE CHARTS.
+        //DONE:  MAKE SURE YOU CAN CYCLE PER DAY, AND DECTECT THE DAY YOU ARE REPRESENTING ON THE CHARTS.
         // DRILLDOWN REQUIRED>
         //get the database
-        dbRef = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac + "/day_" + currentDay);
+        dbRef = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac + "/attempt_" + attempt + "/day_" + currentDay);
         //when a new value is added to the database, to that specific device,
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -217,6 +221,12 @@ public class SensorFragment extends Fragment {
         chart.setData(lineData);
         chart.setExtraBottomOffset(30f);
         chart.invalidate();
+
+        Description desc = new Description();
+        desc.setText("Time since the start of the day (hours)");  // Your X-axis label
+        desc.setTextSize(12f);
+        desc.setPosition(chart.getWidth()/1.10f, chart.getHeight() - 10f); // Bottom center
+        chart.setDescription(desc);
 
     }
 

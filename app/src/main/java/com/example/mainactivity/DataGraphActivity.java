@@ -49,7 +49,7 @@ public class DataGraphActivity extends AppCompatActivity {
     // Variables to track timestamps
     private long firstTimestamp = -1;
     private long lastTimestamp = -1;
-
+    private int attempt = 1;
     boolean first_open = true;
     int current_day = 1;
     @Override
@@ -63,6 +63,7 @@ public class DataGraphActivity extends AppCompatActivity {
         deviceMac = getIntent().getStringExtra("DEVICE_MAC");
         current_day = getIntent().getIntExtra("DAY",1);
         selectedDay = current_day;
+        attempt = getIntent().getIntExtra("ATTEMPT", 1);
 
         //text views about which device is connected.
         tvDeviceMessage = findViewById(R.id.device_data_start_textview);
@@ -80,7 +81,7 @@ public class DataGraphActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         //the adapter is each different charts, give the mac address
-        SensorPagerAdapter adapter = new SensorPagerAdapter(this, deviceMac, selectedDay);
+        SensorPagerAdapter adapter = new SensorPagerAdapter(this, deviceMac, selectedDay, attempt);
         viewPager.setAdapter(adapter);
 
         //the tabs are used to navigate between charts.
@@ -89,7 +90,8 @@ public class DataGraphActivity extends AppCompatActivity {
             tab.setText(finalAdapter.getTabTitle(position));
         }).attach();
 
-        //TODO: WHEN CYCLING THROUGH THE TABS AND CHANGING THE DAY FOR THE FIRST TIME, IT DOESNT WORK
+        //DONE:
+        // WHEN CYCLING THROUGH THE TABS AND CHANGING THE DAY FOR THE FIRST TIME, IT DOESNT WORK
         // YOU MUST RECHANGE THE DAY TO MAKE EACH TAB CHANGE
         // OR PRESS A TAB FIRST THEN CHANGE THE DAY.
         // MAKE IT SO THAT IT CHANGES TO THE DAY AUTMATICALLY TO AVOID ISSUES?
@@ -99,7 +101,7 @@ public class DataGraphActivity extends AppCompatActivity {
 
         // Modify viewPager initialization
         viewPager = findViewById(R.id.viewPager);
-        adapter = new SensorPagerAdapter(this, deviceMac, selectedDay);
+        adapter = new SensorPagerAdapter(this, deviceMac, selectedDay, attempt);
         viewPager.setAdapter(adapter);
 
 //        //reset button, resets the data on the
@@ -137,8 +139,7 @@ public class DataGraphActivity extends AppCompatActivity {
 //    });
     }
 
-
-    //TODO: MAKE A DRILL DOWN ON THE GRAPHS TO CHOOSE PER DAY.
+    //DONE: MAKE A DRILL DOWN ON THE GRAPHS TO CHOOSE PER DAY.
 
     private void setupDaySpinner() {
         try {
@@ -151,7 +152,7 @@ public class DataGraphActivity extends AppCompatActivity {
                     List<String> days = new ArrayList<>();
 
                     for (int day = 1; day <= 7; day++) {
-                        if (snapshot.child("day_" + day).exists()) {
+                        if (snapshot.child("attempt_" + attempt).child("day_" + day).exists()) {
                             days.add("Day " + day);
                         }
                     }

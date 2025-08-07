@@ -48,11 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -71,7 +67,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private boolean connected = false;
     private String mac_address = null;
     private volatile boolean keepReading = true; // Control flag
-
+    private boolean verification_complete = false;
     private String response = null;
 
     @SuppressLint("SetTextI18n")
@@ -83,6 +79,8 @@ public class BluetoothActivity extends AppCompatActivity {
         btnScan = findViewById(R.id.btnScan);
         complete = findViewById(R.id.complete_bluetooth);
         lvDevices = findViewById(R.id.lvDevices);
+        lvDevices.setDivider(new ColorDrawable(Color.TRANSPARENT));
+        lvDevices.setDividerHeight(2);
         tvStatus = findViewById(R.id.tvStatus);
 
 
@@ -105,7 +103,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         //get the list of devices
         deviceList = new ArrayList<>();
-        deviceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, deviceList);
+        deviceAdapter = new com.example.mainactivity.BluetoothDeviceAdapter(this, deviceList);
         lvDevices.setAdapter(deviceAdapter);
 
         //scan the devices around
@@ -117,7 +115,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         //COMPLETE button
         complete.setOnClickListener(v -> {
-            if (connected){
+            if (connected && verification_complete){
                 if (mac_address == null){
                     Intent intent = new Intent (BluetoothActivity.this, WiFiActivity.class);
                     startActivity(intent);
@@ -129,7 +127,11 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
 
             } else {
-                Toast.makeText(this, "Connect to a device first!", Toast.LENGTH_SHORT).show();
+                if (!verification_complete && connected){
+                    Toast.makeText(this,"Retrieving data...",Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(this, "Connect to a device first!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -170,7 +172,6 @@ public class BluetoothActivity extends AppCompatActivity {
         }
         return true;
     }
-
     //scan for devices
     private void scanDevices() {
         if (bluetoothAdapter.isEnabled()) {
@@ -196,36 +197,37 @@ public class BluetoothActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference sensorsRef = database.getReference("sensors");
 
-        // Query all sensors where General/BT_ADDRESS matches our device MAC
+        //query all sensors where general/BT_ADDRESS matches our device MAC
         sensorsRef.orderByChild("general/bt_address").equalTo(deviceMac).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            // Device found in Firebase
+                            //found in Firebase
                             for (DataSnapshot sensorSnapshot : dataSnapshot.getChildren()) {
-                                // Get the General node
+                                //get the General node
                                 DataSnapshot generalSnapshot = sensorSnapshot.child("general");
 
-                                // Verify the device is enabled
+                                String en_status;
+                                //verify the device is enabled
                                 Boolean enabled = generalSnapshot.child("enabled").getValue(Boolean.class);
                                 if (enabled != null && !enabled) {
-                                    runOnUiThread(() -> {
-                                        tvStatus.setText("Device disabled: " + deviceMac);
-                                        connected = false;
-                                    });
-                                    return;
+                                    en_status = "Device disabled";
+                                } else{
+                                    en_status = "Device Enabled";
                                 }
 
                                 // Get device name
-                                String deviceName = generalSnapshot.child("name").getValue(String.class);
+                                String deviceName = generalSnapshot.child("device_name").getValue(String.class);
                                 // Get device name
                                 String deviceWIFIMAC = generalSnapshot.child("mac_address").getValue(String.class);
 
                                 runOnUiThread(() -> {
                                     mac_address = deviceWIFIMAC;
-                                    String status = "Verified: " + (deviceName != null ? deviceName : "Unknown Device");
-                                    tvStatus.setText(status);
+                                    String status = "Device in database: " + (deviceName != null ? deviceName : "UNNAMED DEVICE");
+                                    tvStatus.setText(status + "\n" + en_status);
+
+                                    verification_complete = true;
                                 });
                                 return;
                             }
@@ -233,6 +235,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
                         runOnUiThread(() -> {
                             tvStatus.setText("Device not registered: " + deviceMac);
+                            verification_complete = true;
                         });
                     }
 

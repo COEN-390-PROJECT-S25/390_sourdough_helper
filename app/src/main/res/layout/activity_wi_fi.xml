@@ -5,7 +5,17 @@
     android:background="@color/background_peach"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center_horizontal">
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/device_data_starter_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter your WiFi Credentials"
+        android:textAlignment="center"
+        android:textColor="@color/primary_text"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <!-- SSID Input -->
     <com.google.android.material.textfield.TextInputLayout
