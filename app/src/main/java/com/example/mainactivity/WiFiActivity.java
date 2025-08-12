@@ -28,15 +28,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.UUID;
 
 public class WiFiActivity extends AppCompatActivity {
-
+    private DatabaseReference databaseReference;
     private EditText etSsid, etPassword;
     private BluetoothSocket btSocket;
     boolean finish = false;
@@ -88,8 +95,8 @@ public class WiFiActivity extends AppCompatActivity {
                                 try {
                                     ip = response.split("\\|")[1];
                                     MacAddress = response.split("\\|")[2];
-                                    finish = true;
-                                    Toast.makeText(this, "Successfully connected to WiFi!", Toast.LENGTH_SHORT).show();
+                                    verifyMacAddressInFirebase(MacAddress);
+                                    //Toast.makeText(this, "Successfully connected to WiFi!", Toast.LENGTH_SHORT).show();
                                 } catch (ArrayIndexOutOfBoundsException e) {
                                     Toast.makeText(this, "Invalid response format", Toast.LENGTH_SHORT).show();
                                 }
@@ -122,6 +129,64 @@ public class WiFiActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void verifyMacAddressInFirebase(String macAddress) {
+        // Make sure databaseReference is properly initialized
+        if (databaseReference == null) {
+            databaseReference = FirebaseDatabase.getInstance().getReference();
+        }
+
+        // Clean the MAC address (remove colons and make uppercase)
+        String cleanMac = macAddress;
+
+        // Show waiting message
+        Toast.makeText(this, "Waiting for device to register in database...", Toast.LENGTH_SHORT).show();
+
+        // Create a listener that will keep checking until MAC appears
+        ValueEventListener macVerificationListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                boolean macFound = false;
+
+                // Check each sensor node for matching MAC
+                for (DataSnapshot sensorSnapshot : dataSnapshot.getChildren()) {
+                    String sensorMac = sensorSnapshot.child("general").child("mac_address").getValue(String.class);
+                    System.out.println("MAC FOUND: " + sensorMac + " VS " + cleanMac);
+                    if (Objects.equals(cleanMac, sensorMac)) {
+                        macFound = true;
+                        break;
+                    }
+                }
+
+                if (macFound) {
+                    // MAC found - success!
+                    finish = true;
+                    databaseReference.child("sensors").removeEventListener(this); // Stop listening
+                    Toast.makeText(WiFiActivity.this,
+                            "Device successfully registered!",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // MAC not found yet, keep waiting
+                    Toast.makeText(WiFiActivity.this,
+                            "Still waiting for device registration...",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                databaseReference.child("sensors").removeEventListener(this);
+                finish = false;
+                Toast.makeText(WiFiActivity.this,
+                        "Database error: " + databaseError.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        // Start listening for changes in the sensors node
+        databaseReference.child("sensors")
+                .addValueEventListener(macVerificationListener);
     }
 
     @Override

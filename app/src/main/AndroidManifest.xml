@@ -1,75 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <uses-feature
-        android:name="android.hardware.bluetooth"
-        android:required="true" />
-
-    <application
-        android:allowBackup="true"
-        android:name=".AlertsManager"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.MainActivity"
-        tools:targetApi="31">
-        <service
-            android:name=".NotificationService"
-            android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="false"
-            android:foregroundServiceType="specialUse" />
-        <activity
-            android:name=".FeedingActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".DeviceDataActivity"
-            android:exported="false" />
-        <activity
-            android:name=".DataGraphActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            android:parentActivityName=".DeviceDataActivity" /> <!-- SINGLETOP PREVENTS LOSING DATA -->
-        <activity
-            android:name=".DeviceDataActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".WiFiActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            android:parentActivityName=".BluetoothActivity" />
-        <activity
-            android:name=".BluetoothActivity"
-            android:screenOrientation="portrait"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:exported="true">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
+    <application android:allowBackup="true" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.MainActivity" tools:targetApi="31">
+        <activity android:name=".FeedingActivity" android:parentActivityName=".DeviceDataActivity" android:exported="false" android:screenOrientation="portrait"/>
+        <activity android:name=".DataGraphActivity" android:exported="false" android:parentActivityName=".DeviceDataActivity" android:screenOrientation="portrait"/>
+        <!--  SINGLETOP PREVENTS LOSING DATA  -->
+        <activity android:name=".DeviceDataActivity" android:exported="false" android:launchMode="singleTop" android:parentActivityName=".MainActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".WiFiActivity" android:exported="false" android:parentActivityName=".BluetoothActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".BluetoothActivity" android:exported="false" android:parentActivityName=".MainActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

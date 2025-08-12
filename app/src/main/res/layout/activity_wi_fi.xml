@@ -5,9 +5,10 @@
     android:background="@color/background_peach"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center">
+    >
 
     <TextView
+        android:layout_marginTop="100dp"
         android:id="@+id/device_data_starter_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

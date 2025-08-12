@@ -226,7 +226,7 @@ public class DataGraphActivity extends AppCompatActivity {
     private void setupTimestampTracker() {
         //get reference
         DatabaseReference deviceReadingsRef = FirebaseDatabase.getInstance()
-                .getReference("sensors/" + deviceMac + "/day_" + selectedDay);
+                .getReference("sensors/" + deviceMac + "/attempt_" + attempt + "/day_" + selectedDay);
 
         //track data changes on the database
         deviceReadingsRef.addValueEventListener(new ValueEventListener() {

@@ -3,7 +3,6 @@ package com.example.mainactivity;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_LONG;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
+import android.content.DialogInterface;
 
 public class FeedingDialogFragment extends DialogFragment {
 
@@ -64,6 +64,31 @@ public class FeedingDialogFragment extends DialogFragment {
     private boolean ready_state = false;
     private int attempt = 1;
 
+    public interface OnFeedingDialogListener {
+        void onDialogDismissed();
+        void onStarterFed(int newDay);
+    }
+
+    private OnFeedingDialogListener listener;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        // Verify that the host activity implements the callback interface
+        if (context instanceof OnFeedingDialogListener) {
+            listener = (OnFeedingDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFeedingDialogListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,7 +99,7 @@ public class FeedingDialogFragment extends DialogFragment {
         ready_state = mArgs.getBoolean("READY");
         attempt = mArgs.getInt("ATTEMPT");
         System.out.println("MAC IS:" + deviceMac);
-
+        System.out.println ("READY STATE IS: " + ready_state);
         View view = inflater.inflate(R.layout.feeding_dialog_fragment, container, false);
 
         //initialize views here
@@ -97,7 +122,7 @@ public class FeedingDialogFragment extends DialogFragment {
 
         //set text for views here from local sql database
         //REQUIREMENTS
-        infoEntity = new AtomicReference<>(db.infoDao().getInfoByDay(10)); //day = 10 to set requirements
+        infoEntity = new AtomicReference<>(db.infoDao().getInfoByDay(0)); //day = 10 to set requirements
         tipsEntity = new AtomicReference<>();
         textViewRequirements.setText(infoEntity.get().getInfo());
 
@@ -125,13 +150,8 @@ public class FeedingDialogFragment extends DialogFragment {
 
                     List<TipsEntity> tipList = new ArrayList<>();
                     //get a random tip from the list of tips
-                    if (currentDay == 8){
-                        tipList = db.tipsDao().getTipsByCondition("day8");
-                    }else if (currentDay == 7){
-                        tipList = db.tipsDao().getTipsByCondition("day7");
-                    } else{
-                         tipList = db.tipsDao().getTipsByCondition("default");
-                    }
+                    tipList = db.tipsDao().getTipsByCondition("default");
+
                     //TODO: add the other temp flag after algorithm implemented.
 
                     Random r = new Random();
@@ -154,58 +174,36 @@ public class FeedingDialogFragment extends DialogFragment {
         });
 
         //set click listeners for buttons here
-        buttonStarterFed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Context context = getContext();
-                if (context == null) return;
-                if (ready_state) {
-                    // Create alert dialog for confirmation
-                    new AlertDialog.Builder(getContext())
-                            .setTitle("Confirmation")
-                            .setMessage("Are you sure you want to proceed to the next day?")
-                            .setPositiveButton("I have fed my starter!", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // User clicked OK, perform database changes
-                                    databaseReference.child("general").child("current_day").setValue(currentDay+1)
-                                            .addOnSuccessListener(aVoid -> {
-                                                databaseReference.child("general").child("enable").setValue(true)
-                                                        .addOnFailureListener(e -> {
-                                                            Toast.makeText(getContext(), "Failed to enable device: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                        });
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Toast.makeText(getContext(), "Failed to set the device date!" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
-                                    dismiss();
-                                }
-                            })
-                            .setNegativeButton("Not Yet!", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // User cancelled the dialog
-                                    dialog.dismiss();
-                                }
-                            })
-                            .create()
-                            .show();
-                } else {
-                    Toast.makeText(getContext(), "The dough is not ready for the next day!", Toast.LENGTH_SHORT).show();
-                }
+        buttonStarterFed.setOnClickListener(v -> {
+            if (ready_state) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Confirmation")
+                        .setMessage("Are you sure you want to proceed to the next day?")
+                        .setPositiveButton("I have fed my starter!", (dialog, which) -> {
+                            databaseReference.child("general").child("current_day").setValue(currentDay + 1)
+                                    .addOnSuccessListener(aVoid -> {
+                                        databaseReference.child("general").child("enable").setValue(true)
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(getContext(), "Failed to enable device: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                });
+                                        // Notify activity about the new day
+                                        if (listener != null) {
+                                            listener.onStarterFed(currentDay + 1);
+                                        }
+                                        dismiss();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getContext(), "Failed to set the device date!" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        })
+                        .setNegativeButton("Not Yet!", null)
+                        .show();
+            } else {
+                Toast.makeText(getContext(), "The dough is not ready for the next day!", Toast.LENGTH_SHORT).show();
             }
         });
-        //update day progress in firebase
-            //update day progress in firebase
-            //TODO: ALGORITHM IMPORTANT NOTE: IF YOU ARE AT DAY 7 AND GO OVER 24 HOURS, JUST JUMP TO DAY 8 AUTOMATICALLY.
-            //TODO: ONLY SHOW THE STARTER FED OPTION WHEN THE USER IS WAITING ON THE NEXT DAY, OR IF THE USER IS READY TO MOVE ON!
-            // SO DAY + 1, THEN IF THE ALGORITHM DECIDES THAT THEY ARE READY, THEN YOU CAN SEE THE BUTTON.
-            // THEN THE PRESSING OF IT WILL CHANGE THE DAY
-            // ENABLE THE LID AGAIN (IF IT WAS DISABLED).
-            // REMOVE THE NEXT DAY BUTTON ONCE COMPLETED.
-            // SPECIAL ALGORITHM FOR DAY 1 AND DAY 2.
-            // Add this spinner selection listener
-        //dismiss the dialog
+
+
         //exit button click
         view.findViewById(R.id.buttonExitDialog).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,12 +215,20 @@ public class FeedingDialogFragment extends DialogFragment {
         return view;
     }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (listener != null) {
+            listener.onDialogDismissed();
+        }
+    }
+
     private void setup_spinner() {
         List<String> days = new ArrayList<>();
 
         // Add days from 1 to 8 to the list
         // day 0 is used in the database to store the starter requirements, so don't include it here
-        for (int day = 1; day <= 8; day++) {
+        for (int day = 0; day <= 8; day++) {
             days.add("Day " + day);
         }
 
@@ -243,11 +249,7 @@ public class FeedingDialogFragment extends DialogFragment {
                     int spinnerPosition = spinnerAdapter.getPosition("Day " + currentDay);
                     day_spinner.setSelection(spinnerPosition);
                     first_open = false;
-                    //after day 7+, disable the feeding button
-                    if (currentDay == 8){
-                        buttonStarterFed.setVisibility(GONE);
-                        textviewStatus.setVisibility(GONE);
-                    }
+                    buttonStarterFed.setVisibility(GONE);
                 }else{
                     selectedDay = Integer.parseInt(selected.replace("Day ", ""));
                     day_spinner.getSelectedItemPosition();
@@ -255,17 +257,22 @@ public class FeedingDialogFragment extends DialogFragment {
                 }
 
                 //check if feeding conditions have been met, if yes: enable button, otherwise: disable button
-                if (ready_state){
+                if (ready_state && selectedDay == currentDay+1){
+                    System.out.println("READY STATE DETECTED, SET THE TEXTVIEWS: " + currentDay);
                     textviewStatus.setText("Ready for Day " + (currentDay + 1) + " ! Check the instructions!");
-                    if (currentDay == day_spinner.getSelectedItemPosition()){
-                        buttonStarterFed.setVisibility(VISIBLE);
-                    }else{
-                        buttonStarterFed.setVisibility(GONE);
-                    }
-                }else{
+                    buttonStarterFed.setVisibility(VISIBLE);
+
+                }else if (selectedDay == 0 && ready_state){
+                    System.out.println("SET VISIBILITY TO GONE");
+                    buttonStarterFed.setVisibility(GONE);
+                    textviewStatus.setVisibility(GONE);
+                }else {
                     textviewStatus.setText("Not ready for Day " + (currentDay + 1));
                     buttonStarterFed.setVisibility(GONE);
                 }
+
+
+
                 //set daily instructions here
                 infoEntity.set(db.infoDao().getInfoByDay(selectedDay)); //set to current day
                 textViewProgress.setText(infoEntity.get().getDayName() + "/7 Instructions");

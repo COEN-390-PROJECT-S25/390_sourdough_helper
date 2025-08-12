@@ -123,7 +123,9 @@ public class BluetoothActivity extends AppCompatActivity {
                     Intent intent = new Intent (BluetoothActivity.this, MainActivity.class);
                     intent.putExtra("ESP32_MAC", mac_address);
                     intent.putExtra("ESP32_IP", "NONE");
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+                    finish();
                 }
 
             } else {
@@ -266,16 +268,16 @@ public class BluetoothActivity extends AppCompatActivity {
 
                 BluetoothConnectionManager.getInstance().setSocket(bluetoothSocket);
                 final String deviceMac = device.getAddress();
+                checkFirebaseForDevice(deviceMac);
 
                 //add the distance reading receiver
                 InputStream inputStream = bluetoothSocket.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 runOnUiThread(() -> {
-                    tvStatus.setText("Connected to " + device.getName());
                     connected = true;
                 });
-                checkFirebaseForDevice(deviceMac);
+
 
             } catch (IOException e) {
                 runOnUiThread(() -> {

@@ -1,61 +1,75 @@
 package com.example.mainactivity;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
-import com.example.mainactivity.Database.entity.TipsEntity;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.mainactivity.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DeviceAdapter extends ArrayAdapter<String> {
-    private final MainActivity activity;
-    String deviceName;
+    private ArrayList<String> devices;
+    private Context context;
+    private SharedPreferences prefs;
     private DatabaseReference databaseReference;
-    public DeviceAdapter(MainActivity context, ArrayList<String> devices) {
-        super(context, 0, devices);
-        this.activity = context;
+    private final MainActivity activity;
+
+    public DeviceAdapter(Context context, ArrayList<String> devices, MainActivity activity) {
+        super(context, R.layout.device_list_item, devices);
+        this.devices = devices;
+        this.context = context;
+        this.prefs = context.getSharedPreferences("DEVICE_PREFS", Context.MODE_PRIVATE);
+        this.activity = activity;
+    }
+
+    private static class ViewHolder {
+        TextView tvDeviceName;
+        ImageButton btnDelete;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        String deviceInfo = getItem(position);
-        String[] parts = deviceInfo.split(" - ");
-        String deviceMac = parts[2];
+
+        ViewHolder holder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.device_list_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.device_list_item, parent, false);
+            holder = new ViewHolder();
+            holder.tvDeviceName = convertView.findViewById(R.id.tvDeviceName);
+            holder.btnDelete = convertView.findViewById(R.id.btnDelete);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        TextView tvDeviceName = convertView.findViewById(R.id.tvDeviceName);
-        TextView tvDeviceMac = convertView.findViewById(R.id.tvDeviceMac);
-        ImageButton btnDelete = convertView.findViewById(R.id.btnDelete);
+        String device = getItem(position);
+        String[] parts = device.split(" - ");
+        String deviceMac = parts[1];
 
+        System.out.println("NEW DEVICE IS: " + deviceMac);
         databaseReference = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac);
         databaseReference.child("general").child("device_name").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
                 DataSnapshot dataSnapshot = task.getResult();
                 if (dataSnapshot.exists()){
-                    deviceName = dataSnapshot.getValue(String.class);
-                    tvDeviceName.setText(deviceName);
+                    String deviceName = dataSnapshot.getValue(String.class);
+                    holder.tvDeviceName.setText(deviceName);
                 }else{
                     Toast.makeText(getContext(), "SNAPSHOT ERROR", Toast.LENGTH_SHORT).show();
                 }
@@ -65,36 +79,32 @@ public class DeviceAdapter extends ArrayAdapter<String> {
             }
         });
 
-        System.out.println("DEVICE NAME SET: " + deviceName);
-        tvDeviceMac.setText(deviceMac);
-
-        btnDelete.setOnClickListener(v -> {
-            showDeleteConfirmation(position);
-        });
+        holder.btnDelete.setOnClickListener(v -> showDeleteConfirmationDialog(position));
 
         // Add ripple effect to entire item
         convertView.setOnClickListener(v -> {
-            String devicep = deviceInfo.split(" - ")[1];
-            String deviceM = deviceInfo.split(" - ")[2];
             Intent intent = new Intent(activity, DeviceDataActivity.class);
-            intent.putExtra("DEVICE_IP", devicep);
-            intent.putExtra("DEVICE_MAC", deviceM);
+            intent.putExtra("DEVICE_MAC", deviceMac);
             activity.startActivity(intent);
         });
+
 
         return convertView;
     }
 
-    private void showDeleteConfirmation(int position) {
-        new MaterialAlertDialogBuilder(getContext(), R.style.AlertDialogTheme)
-                .setTitle("Remove Device")
+    private void showDeleteConfirmationDialog(int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogTheme2);
+        builder.setTitle("Delete Device")
                 .setMessage("Are you sure you want to remove this device?")
-                .setPositiveButton("Remove", (dialog, which) -> {
+                .setPositiveButton("Delete", (dialog, which) -> {
                     activity.removeDevice(position);
                 })
-                .setNegativeButton("Cancel", null)
-                .setIcon(R.drawable.baseline_warning_24)
-                .show();
-    }
+                .setNegativeButton("Cancel", null);
 
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Customize button colors if needed
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(context, R.color.icon_red));
+    }
 }

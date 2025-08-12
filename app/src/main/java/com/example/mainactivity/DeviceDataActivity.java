@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class DeviceDataActivity extends AppCompatActivity {
+public class DeviceDataActivity extends AppCompatActivity implements FeedingDialogFragment.OnFeedingDialogListener{
     private TextView tvstarthumidity, tvstartco2, tvstarttemperature, tvstartheight;
     private TextView tvmaxhumidity, tvmaxco2, tvmaxtemperature, tvmaxheight;
     //general info textviews
@@ -93,7 +93,19 @@ public class DeviceDataActivity extends AppCompatActivity {
         tvready = findViewById(R.id.device_data_result_textview);
         tvstartername = findViewById(R.id.device_data_starter_name);
 
+
+
         databaseReference = FirebaseDatabase.getInstance().getReference("sensors/" + deviceMac);
+
+        databaseReference.child("general").child("device_name").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DataSnapshot snapshot = task.getResult();
+                if (snapshot.exists()) {
+                    String name = snapshot.getValue(String.class);
+                    tvstartername.setText(name);
+                }
+            }
+        });
 
         databaseReference.child("general").child("attempt").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -107,17 +119,6 @@ public class DeviceDataActivity extends AppCompatActivity {
         //buttons
         btnStart = findViewById(R.id.device_data_start_button);
         btnNew = findViewById(R.id.device_data_new_button);
-        //btnNextDay = findViewById(R.id.device_data_new_day);
-
-//        //set device name from firebase
-//        databaseReference.child("general").child("device_name").get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                String deviceName = task.getResult().getValue(String.class);
-//                tvstartername.setText(deviceName);
-//            } else {
-//                //cant retrieve name
-//            }
-//        });
 
         btnStart.setOnClickListener(v -> {
             databaseReference.child("general").child("current_day").get().addOnCompleteListener(task -> {
@@ -132,6 +133,11 @@ public class DeviceDataActivity extends AppCompatActivity {
                     return;
                 }
 
+                ///SET DATABASE READING CHANGER THING HERE. WHEN YOU CHANGE IT SHOULD REACT TO IT.
+                // TODO: SET A LISTENER HERE? OR HARD MANUALLY MODIFY IT?
+                //  MAKE A BUNDLE? MAKE A WAY TO JUST SEND 2 PIECE OF DATA BACK TO THE ACTIVITIES?
+                //  CHANGE THE TEXTVIEW TO NOT READY AFTER PRESSING STARTER FED
+                //  CHANGE THE ENABLE BUTTON TO BE FOR DISABLING AFTER PRESSING STARTER FED
                 databaseReference.child("general").child("enable").get().addOnCompleteListener(enableTask -> {
                     if (!enableTask.isSuccessful() || !enableTask.getResult().exists()) {
                         Toast.makeText(this, "Failed to check device status", Toast.LENGTH_SHORT).show();
@@ -143,10 +149,10 @@ public class DeviceDataActivity extends AppCompatActivity {
 
                     // Update UI first for responsiveness
                     if (newState) {
-                        btnStart.setText("DISABLE LID");
+                        btnStart.setText("Disable Lid");
                         btnStart.setBackgroundColor(Color.parseColor("#B9375D")); // Red for disable
                     } else {
-                        btnStart.setText("ENABLE LID");
+                        btnStart.setText("Enable Lid");
                         btnStart.setBackgroundColor(Color.parseColor("#689B8A")); // Green for enable
                     }
 
@@ -160,10 +166,10 @@ public class DeviceDataActivity extends AppCompatActivity {
                                 Toast.makeText(this, "Operation failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 // Revert UI if update fails
                                 if (Boolean.TRUE.equals(isEnabled)) {
-                                    btnStart.setText("DISABLE LID");
+                                    btnStart.setText("Disable Lid");
                                     btnStart.setBackgroundColor(Color.parseColor("#B9375D"));
                                 } else {
-                                    btnStart.setText("ENABLE LID");
+                                    btnStart.setText("Enable Lid");
                                     btnStart.setBackgroundColor(Color.parseColor("#689B8A"));
                                 }
                             });
@@ -192,6 +198,9 @@ public class DeviceDataActivity extends AppCompatActivity {
                             databaseReference.child("general").updateChildren(updates)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(DeviceDataActivity.this, "Ready for new dough! \n Go check the feeding instructions!", Toast.LENGTH_SHORT).show();
+                                        ready_state = true;
+                                        tvready.setText("Go check the instructions for day 1's feeding!");
+
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(DeviceDataActivity.this, "Failed to reset! " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -203,21 +212,6 @@ public class DeviceDataActivity extends AppCompatActivity {
                 .show();
         });
 
-//        btnNextDay.setOnClickListener(v -> {
-//            //check with the algorithm if the user's data is good.
-//            //get the maximum height, co2, and time, and do comparison
-//
-//            //if everything is met, disable the device, and move the user to the next feeding day.
-//            //if not met, prompt the user to be sure to press the next day.
-//
-//            //then, for either cases start an intent to a feeding activity for the day
-//            //when the user is done, returns to this activity, and enables the device again.
-//
-//            //if the user is at day 7, then something else happens. maybe we show them recipes or we tell them that this dough is complete,
-//            //and that you can't continue, or tell them how to maintain it, but the lid is not used anymore after this.
-//        });
-
-        //TODO: MAKE A NEXT DAY BUTTON.
         //setup action bar
         if (getSupportActionBar() != null) {
             ActionBar actionBar = getSupportActionBar();
@@ -249,6 +243,7 @@ public class DeviceDataActivity extends AppCompatActivity {
             feedingDialogFragment.setArguments(args);
             feedingDialogFragment.show(getSupportFragmentManager(), "FeedingDialogFragment");
         });
+
     }
 
     private void evaluateDoughStatus() {
@@ -313,17 +308,18 @@ public class DeviceDataActivity extends AppCompatActivity {
 //        boolean goodTemp = tempChange >= GOOD_TEMP_CHANGE;
         boolean goodHeight = heightChange >= GOOD_HEIGHT_CHANGE;
 
-        // Determine overall status
         if (goodCo2 && goodHeight) {
             ready_state = true;
             return "Dough is ready! Excellent fermentation.";
-        }  else if (goodHeight || goodCo2) {
+        } else if (goodHeight || goodCo2) {
             ready_state = false;
             return "Dough is progressing well.";
         } else {
             ready_state = false;
             return "Dough needs more time to ferment.";
-        }
+    }
+
+
     }
     private void checkEnabled() {
         databaseReference.child("general").child("enable").get().addOnCompleteListener(enableTask -> {
@@ -337,10 +333,10 @@ public class DeviceDataActivity extends AppCompatActivity {
 
             // Update UI first for responsiveness
             if (newState) {
-                btnStart.setText("DISABLE LID");
+                btnStart.setText("Disable Lid");
                 btnStart.setBackgroundColor(Color.parseColor("#B9375D")); // Red for disable
             } else {
-                btnStart.setText("ENABLE LID");
+                btnStart.setText("Enable Lid");
                 btnStart.setBackgroundColor(Color.parseColor("#689B8A")); // Green for enable
             }
         });
@@ -351,6 +347,10 @@ public class DeviceDataActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     currentDay = snapshot.getValue(Integer.class);
+                    if (currentDay == 0){
+                        tvready.setText("Go check the instructions for day 1's feeding!");
+                        ready_state = true;
+                    }
                     if (currentDay != null && currentDay > 0) {
                         // Fetch start data for the current day
                         databaseReference.child("attempt_" + attempt).child("day_" + currentDay).child("start_data").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -569,5 +569,34 @@ public class DeviceDataActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDialogDismissed() {
+        // Refresh data when dialog is closed
+        fetchStartData();
+    }
+
+    @Override
+    public void onStarterFed(int newDay) {
+        runOnUiThread(() -> {
+            // Update the button state
+            btnStart.setText("Disable Lid");
+            btnStart.setBackgroundColor(Color.parseColor("#B9375D"));
+
+            // Update the day and status text
+            currentDay = newDay;
+            if (currentDay == 8) {
+                tvday.setText("The dough is currently at Day 7+");
+                tvready.setText("Dough is ready for baking!");
+                btnGraphData.setVisibility(GONE);
+            } else {
+                tvday.setText("The dough is currently at Day " + currentDay);
+                tvready.setText("Dough needs more time to ferment");
+            }
+
+            // Force a refresh of the data
+            fetchStartData();
+        });
     }
 }

@@ -113,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="400 ppm"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
 
                     <TextView
@@ -122,7 +122,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="1200 ppm"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
                 </TableRow>
 
@@ -149,7 +149,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="45%"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
 
                     <TextView
@@ -158,7 +158,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="85%"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
                 </TableRow>
 
@@ -185,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="22°C"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
 
                     <TextView
@@ -194,7 +194,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="32°C"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
                 </TableRow>
 
@@ -222,7 +222,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="1.2m"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
 
                     <TextView
@@ -231,7 +231,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:padding="8dp"
-                        android:text="2.5m"
+                        android:text=""
                         android:textColor="@color/on_secondary_color" />
                 </TableRow>
             </TableLayout>
@@ -243,7 +243,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
-                android:text="It has been running for X hours"
+                android:text="Duration: "
                 android:textColor="@color/on_secondary_color"
                 android:layout_marginHorizontal="10dp"/>
 
@@ -254,7 +254,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
-                android:text="The dough is at day 1"
+                android:text="The dough is at day 0"
                 android:textColor="@color/on_secondary_color"
                 android:layout_marginHorizontal="10dp"/>
 
@@ -265,7 +265,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/secondary_color"
-                android:text="The dough is not ready for the next day"
+                android:text="There is no dough currently."
                 android:textColor="@color/on_secondary_color"
                 android:layout_marginHorizontal="10dp"/>
             <!-- Graphed Data Button -->
@@ -323,7 +323,7 @@
             android:minHeight="100dp"
             android:padding="8dp"
             android:backgroundTint="@color/green"
-            android:text="Enable Device"
+            android:text="Enable Lid"
             android:textSize="14sp"
             android:ellipsize="none"
             android:maxLines="2"

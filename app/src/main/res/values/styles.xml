@@ -34,6 +34,9 @@
     <style name="AlertDialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
-
+    <style name="AlertDialogTheme2" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorAccent">@color/primary_color</item>
+    </style>
 
 </resources>
